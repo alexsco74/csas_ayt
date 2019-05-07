@@ -1,0 +1,80 @@
+<?php
+DEFINE('CSAS_AYT_ADMIN_URI', 'admin/config/services/csas-ayt');
+DEFINE('CSAS_AYT_CHANNEL_ITEMS_DEBUG', 20);
+
+/**
+ * Implements hook_menu().
+ */
+function csas_ayt_menu() {
+  $items = [];
+  $items[CSAS_AYT_ADMIN_URI] = [
+    'title' => 'Api yandex.Turbo',
+    'description' => 'Config csas_ayt',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => ['csas_ayt_admin_config'],
+    'access arguments' => ['access administration pages'],
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'csas_ayt.admin.inc',
+  ];
+  $items[CSAS_AYT_ADMIN_URI . '/upload'] = [
+    'title' => 'Api yandex turbo upload batch',
+    'page callback' => 'csas_ayt_admin_upload',
+    'access arguments' => ['administer site configuration'],
+    'file' => 'csas_ayt.admin.inc',
+  ];
+  return $items;
+}
+
+function _csas_ayt_upload_execute($execute_mode = 'cron', $redirect = CSAS_AYT_ADMIN_URI) {
+  module_load_include('action.inc', 'csas_ayt');
+  $result = csas_ayt_action_upload($execute_mode, $redirect);
+  return $result;
+}
+
+function csas_ayt_cron() {
+  //every day
+  $action_cron = variable_get('csas_ayt_cron', 'everyday_4');
+  if ($action_cron != '_none') {
+    $host_name = variable_get('csas_ayt_unicode_host_name', '');
+    if (
+      !empty($host_name)
+      && strpos($_SERVER['HTTP_HOST'], $host_name) !== FALSE
+    ) {
+      $var_name = 'csas_ayt_cron_last_time_upload';
+      $last_cron_time = variable_get($var_name, 0);
+      $today = new DateTime();
+      //every day in xxx hour
+      if (strpos($action_cron, 'everyday_') === 0) {
+        $cron_ex = explode('_', $action_cron);
+        if (isset($cron_ex[1])) {
+          $hour = $cron_ex[1];
+        }
+        $last_cron_date = date('Y-m-d', $last_cron_time);
+        $today_date = $today->format('Y-m-d');
+        if ($last_cron_date != $today_date) {
+          $today_hour = $today->format('G');
+          if ($today_hour >= $hour) {
+            if (_csas_ayt_upload_execute('cron')) {
+              $date_time_executed = new DateTime();
+              variable_set($var_name, $date_time_executed->getTimestamp());
+            }
+          }
+        }
+      }
+      //everyXminutes
+      if (strpos($action_cron, 'every') === 0 && strpos($action_cron, 'minutes')) {
+        $str_sea = ['every', 'minutes'];
+        $minutes = str_replace($str_sea, '', $action_cron);
+        if (is_numeric($minutes)) {
+          $minutes_timestamp = $minutes * 60;
+          if ($today->getTimestamp() - $last_cron_time > $minutes_timestamp) {
+            if (_csas_ayt_upload_execute('cron')) {
+              $date_time_executed = new DateTime();
+              variable_set($var_name, $date_time_executed->getTimestamp());
+            }
+          }
+        }
+      }
+    }
+  }
+}

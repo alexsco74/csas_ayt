@@ -1,0 +1,10 @@
+<?php
+
+/**
+ * Implements hook_uninstall().
+ */
+function csas_ayt_uninstall() {
+  db_delete('variable')
+    ->condition('name', db_like('csas_ayt_') . '%', 'LIKE')
+    ->execute();
+}

@@ -1,0 +1,5 @@
+name = Csas API yandex turbo
+description = https://tech.yandex.ru/webmaster/doc/dg/reference/turbo-about-docpage/
+core = 7.x
+dependencies[] = csas_ytu
+configure = admin/config/services/csas-ayt
