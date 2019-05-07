@@ -1,5 +1,5 @@
 <h2>Config</h2>
-1. Get API yandex turbo OAuth token
+- Get API yandex turbo OAuth token
 2. Create application on yandex https://oauth.yandex.ru/client/new
 <img src="img/reg.png"/>
 3. Edit admin/config/services/csas-ayt -> Host name
