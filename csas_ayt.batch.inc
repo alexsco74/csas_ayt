@@ -102,15 +102,11 @@ function csas_ayt_batch_upload_op($batch_data_base = [], $op_key = '', $op_data 
   $channel_num = $op_data['channel_num'];
   $mode = variable_get('csas_ayt_debug', TRUE) ? 'debug' : 'pro';
   //get upload address
-  $upload_address = variable_get('csas_ayt_' . $channel_num . '_upload_address_' . $mode, '');
-  if (empty($upload_address)) {
-    $res = $api->get_url_add_rss_chanel();
-    if (empty($res['upload_address']->upload_address)) {
-      return $return_op;
-    }
-    $upload_address = $res['upload_address']->upload_address;
-    variable_set('csas_ayt_' . $channel_num . '_upload_address_' . $mode, $upload_address);
+  $res = $api->get_url_add_rss_chanel();
+  if (empty($res['upload_address']->upload_address)) {
+    return $return_op;
   }
+  $upload_address = $res['upload_address']->upload_address;
   //upload turbo
   $vars = [
     'page_num' => $channel_num,
@@ -138,7 +134,7 @@ function csas_ayt_batch_upload_op($batch_data_base = [], $op_key = '', $op_data 
       '!cm' => $mode,
       '!ua' => $upload_address,
     ], WATCHDOG_ERROR);
-    variable_del('csas_ayt_' . $channel_num . '_upload_address_' . $mode);
+    return $return_op;
   }
   //upload success
   watchdog('csas_ayt', 'Upload success. mode: !m, channel_num: !cn, channel_mode: !cm, upload_address: !ua, task_id:!ti', [
@@ -160,7 +156,7 @@ function csas_ayt_batch_upload_op($batch_data_base = [], $op_key = '', $op_data 
   }
   $context['results']['opt_data'][] = $op_data;
   //delay need for fix error speed work 1 sec
-  while (time() - $time < 1) {
+  while (time() - $time < 3) {
     continue;
   }
   return $return_op;
