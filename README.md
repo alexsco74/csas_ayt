@@ -1,9 +1,9 @@
 <h2>Config</h2>
 - Get API yandex turbo OAuth token
-2. Create application on yandex https://oauth.yandex.ru/client/new
+- Create application on yandex https://oauth.yandex.ru/client/new
 <img src="img/reg.png"/>
-3. Edit admin/config/services/csas-ayt -> Host name
-4. Enable admin/config/services/csas-ayt -> API yandex turbo debug
+- Edit admin/config/services/csas-ayt -> Host name
+- Enable admin/config/services/csas-ayt -> API yandex turbo debug
 5. For get url once submit admin/config/services/csas-ayt -> Get_url_add_rss_chanel
 6. For send submit admin/config/services/csas-ayt -> Upload turbo
 7. For check processing submit admin/config/services/csas-ayt -> Task info total
